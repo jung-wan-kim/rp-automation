@@ -235,8 +235,8 @@ copy_rp_files() {
     done
     
     # SYSTEM 파일도 복사
-    if [ -f "$SOURCE_DIR/SYSTEM-v2.md" ]; then
-        cp "$SOURCE_DIR/SYSTEM-v2.md" ".rp/SYSTEM.md"
+    if [ -f "$SOURCE_DIR/SYSTEM.md" ]; then
+        cp "$SOURCE_DIR/SYSTEM.md" ".rp/SYSTEM.md"
         echo -e "\n${GREEN}✓${NC} SYSTEM.md 복사 완료"
     fi
     

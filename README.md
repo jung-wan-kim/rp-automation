@@ -19,9 +19,32 @@ AI 에이전트가 특정 역할을 수행할 수 있도록 설계된 프롬프�
 
 ## 🚀 다른 프로젝트에 적용하는 방법
 
-### 1. 단일 역할 적용
+### 1. 🎯 자동 설치 스크립트 사용 (권장)
 
-특정 역할의 프롬프트를 프로젝트에 적용하려면:
+가장 쉽고 빠른 방법입니다:
+
+```bash
+# 프로젝트 디렉토리로 이동
+cd your-project
+
+# 스크립트 다운로드 및 실행
+curl -fsSL https://raw.githubusercontent.com/jung-wan-kim/rp-automation/master/init-rp.sh -o init-rp.sh
+chmod +x init-rp.sh
+./init-rp.sh
+
+# 또는 한 줄로 실행
+curl -fsSL https://raw.githubusercontent.com/jung-wan-kim/rp-automation/master/init-rp.sh | bash
+```
+
+스크립트는 다음을 수행합니다:
+- 전체 RP 적용 또는 필요한 RP만 선택
+- `.rp/` 디렉토리에 자동으로 파일 복사
+- `.gitignore` 자동 업데이트
+- 사용 가이드 자동 생성
+
+### 2. 수동 설치
+
+특정 역할의 프롬프트를 직접 복사하려면:
 
 ```bash
 # 원하는 역할의 프롬프트 파일을 복사
@@ -32,7 +55,7 @@ cat backend-developer.md | pbcopy  # macOS
 cat backend-developer.md | xclip   # Linux
 ```
 
-### 2. 전체 시스템 통합
+### 3. Git Clone 방식
 
 전체 RP 시스템을 프로젝트에 통합하려면:
 
@@ -47,13 +70,13 @@ mkdir -p /path/to/your/project/prompts
 cp rp-automation/*.md /path/to/your/project/prompts/
 ```
 
-### 3. SYSTEM 프롬프트 활용
+### 4. SYSTEM 프롬프트 활용
 
-`SYSTEM.md` 또는 `SYSTEM-v2.md`를 사용하여 다중 역할 시스템 구축:
+`SYSTEM.md`를 사용하여 다중 역할 시스템 구축:
 
 ```python
 # Python 예시
-with open('SYSTEM-v2.md', 'r') as f:
+with open('SYSTEM.md', 'r') as f:
     system_prompt = f.read()
 
 # AI API에 시스템 프롬프트로 설정
@@ -63,7 +86,7 @@ response = ai_client.chat(
 )
 ```
 
-### 4. 커스터마이징
+### 5. 커스터마이징
 
 각 프롬프트는 다음과 같이 구성되어 있어 쉽게 수정 가능합니다:
 
@@ -88,8 +111,9 @@ response = ai_client.chat(
 ```
 rp-automation/
 ├── README.md                 # 이 파일
-├── SYSTEM.md                # 기본 시스템 프롬프트
-├── SYSTEM-v2.md             # 향상된 시스템 프롬프트 (권장)
+├── INSTALL.md               # 설치 가이드
+├── init-rp.sh               # 자동 설치 스크립트
+├── SYSTEM.md                # 전체 시스템 프롬프트
 ├── backend-developer.md     # 백엔드 개발자 프롬프트
 ├── frontend-developer.md    # 프론트엔드 개발자 프롬프트
 ├── devops-engineer.md       # DevOps 엔지니어 프롬프트
@@ -97,7 +121,8 @@ rp-automation/
 ├── project-manager.md       # 프로젝트 관리자 프롬프트
 ├── qa-engineer.md           # QA 엔지니어 프롬프트
 ├── technical-writer.md      # 기술 문서 작성자 프롬프트
-└── ux-ui-designer.md        # UX/UI 디자이너 프롬프트
+├── ux-ui-designer.md        # UX/UI 디자이너 프롬프트
+└── RP_작업_결과_요약.md       # 각 RP별 작업 내용 요약
 ```
 
 ## 💡 활용 예시
@@ -111,7 +136,7 @@ rp-automation/
 ### 2. Claude Projects
 ```
 1. Claude에서 새 프로젝트 생성
-2. Project instructions에 SYSTEM-v2.md 내용 입력
+2. Project instructions에 SYSTEM.md 내용 입력
 3. 대화 시작 시 원하는 역할 지정
 ```
 
@@ -121,7 +146,7 @@ rp-automation/
 const fs = require('fs');
 const OpenAI = require('openai');
 
-const systemPrompt = fs.readFileSync('./SYSTEM-v2.md', 'utf8');
+const systemPrompt = fs.readFileSync('./SYSTEM.md', 'utf8');
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function askExpert(role, question) {

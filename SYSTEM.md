@@ -1,151 +1,148 @@
-# RP(Role Play) 자동화 시스템
+# RP(Role Play) 자동화 시스템 v2 - 실행 가능한 버전
 
 ## 개요
-이 시스템은 아이디어를 받아서 서비스 개발, 기획, 테스트까지 자동화하는 통합 개발 프로세스입니다.
-각 역할(RP)은 Claude Code에서 구체적인 지침에 따라 작동하며, 협업을 통해 완전한 제품을 만들어냅니다.
+Claude Code의 실제 기능을 활용한 현실적인 RP 자동화 시스템입니다.
 
-## 시스템 아키텍처
+## 실행 가능한 워크플로우
 
-### 1. 워크플로우
-```
-아이디어 입력
-    ↓
-Product Manager (요구사항 분석)
-    ↓
-UX/UI Designer (디자인 설계)
-    ↓
-Frontend/Backend Developer (구현)
-    ↓
-DevOps Engineer (배포 준비)
-    ↓
-QA Engineer (테스트)
-    ↓
-Technical Writer (문서화)
-    ↓
-Project Manager (전체 관리)
+### 1. Context7 MCP를 활용한 RP 체인
+
+#### 초기 설정
+```bash
+# 1. 프로젝트 초기화
+mkdir -p ~/Project/Claude/my-service
+cd ~/Project/Claude/my-service
+
+# 2. RP 컨텍스트 파일 생성
+mkdir -p .rp-contexts
 ```
 
-### 2. 역할별 담당자
-- **Product Manager**: 제품 비전과 요구사항 정의
-- **UX/UI Designer**: 사용자 경험과 인터페이스 설계
-- **Frontend Developer**: 클라이언트 구현
-- **Backend Developer**: 서버 및 API 구현
-- **DevOps Engineer**: 인프라 및 배포 자동화
-- **QA Engineer**: 품질 보증 및 테스트
-- **Technical Writer**: 기술 문서 작성
-- **Project Manager**: 프로젝트 전체 관리
+#### 각 RP별 CLAUDE.md 파일 생성
+```bash
+# Product Manager 컨텍스트
+cat > .rp-contexts/product-manager.md << 'EOF'
+# Product Manager Role
+- 나는 제품 기획자로서 작동한다
+- 아이디어를 받으면 PRD(Product Requirements Document)를 작성한다
+- 산출물은 docs/requirements/PRD.md에 저장한다
+- 작업 완료 후 context7에 "PM 작업 완료" 태그로 저장한다
+EOF
 
-### 3. 통합 규칙
-
-#### 파일 구조
-```
-project-root/
-├── docs/
-│   ├── requirements/
-│   ├── design/
-│   ├── api/
-│   └── user-guide/
-├── frontend/
-├── backend/
-├── infrastructure/
-├── tests/
-└── .github/workflows/
+# UX/UI Designer 컨텍스트
+cat > .rp-contexts/ux-ui-designer.md << 'EOF'
+# UX/UI Designer Role
+- 나는 UX/UI 디자이너로서 작동한다
+- PRD를 읽고 디자인 시스템을 설계한다
+- Figma MCP를 사용해 실제 디자인을 생성한다
+- 산출물은 docs/design/에 저장한다
+- 작업 완료 후 context7에 "Design 작업 완료" 태그로 저장한다
+EOF
 ```
 
-#### 네이밍 컨벤션
-- 브랜치: `feature/role-task-name`
-- 커밋: `[ROLE] 작업 내용`
-- 파일: `kebab-case`
-- 변수/함수: `camelCase`
-- 클래스/컴포넌트: `PascalCase`
+### 2. 실제 실행 방법
 
-#### 커뮤니케이션 프로토콜
-1. 각 RP는 작업 시작 시 `## 작업 시작: [역할명]` 로그 남기기
-2. 다른 RP에게 전달 시 `## 인계: [보내는 역할] → [받는 역할]` 사용
-3. 이슈 발생 시 `## 이슈: [역할명] - [이슈 내용]` 기록
+#### Step 1: Product Manager 역할 실행
+```bash
+# Claude Code 실행
+claude
 
-### 4. 자동화 스크립트
+# RP 활성화
+@.rp-contexts/product-manager.md
+use context7
 
-#### 프로젝트 초기화
+# 아이디어 전달
+"온라인 중고서점 플랫폼을 만들고 싶어. 사용자가 책을 사고팔 수 있는 서비스야."
+```
+
+#### Step 2: 컨텍스트 전달
+```bash
+# 이전 작업 결과 조회
+mcp__context7__context7_search --query "PM 작업 완료"
+
+# 다음 RP로 전환
+@.rp-contexts/ux-ui-designer.md
+use context7
+
+# 이전 단계 결과물 읽기
+Read docs/requirements/PRD.md
+```
+
+### 3. 반자동화 스크립트
+
+#### RP 체인 헬퍼 스크립트
 ```bash
 #!/bin/bash
-# init-project.sh
-PROJECT_NAME=$1
-mkdir -p $PROJECT_NAME/{docs,frontend,backend,infrastructure,tests}
-cd $PROJECT_NAME
-git init
-echo "# $PROJECT_NAME" > README.md
+# rp-helper.sh
+
+function switch_rp() {
+    local role=$1
+    echo "Switching to $role..."
+    echo "@.rp-contexts/$role.md" > .current-rp
+    echo "use context7" >> .current-rp
+}
+
+function save_checkpoint() {
+    local role=$1
+    local tag=$2
+    echo "Saving checkpoint: $tag"
+    # Context7에 저장하는 명령 실행
+}
+
+# 사용 예
+switch_rp "product-manager"
+# 작업 수행...
+save_checkpoint "product-manager" "PRD 완료"
 ```
 
-#### RP 체인 실행
+### 4. 실용적인 통합 방법
+
+#### A. TodoWrite를 활용한 작업 관리
+```markdown
+# 각 RP 시작 시
+TodoWrite:
+- [ ] PRD 작성
+- [ ] 사용자 스토리 정의
+- [ ] 기술 요구사항 분석
+- [ ] Context7에 결과 저장
+```
+
+#### B. Git을 활용한 산출물 관리
 ```bash
-#!/bin/bash
-# run-rp-chain.sh
-IDEA=$1
-echo "Starting RP Chain for: $IDEA"
-claude-code --rp product-manager --input "$IDEA"
-claude-code --rp ux-ui-designer --continue
-claude-code --rp frontend-developer --continue
-claude-code --rp backend-developer --continue
-claude-code --rp devops-engineer --continue
-claude-code --rp qa-engineer --continue
-claude-code --rp technical-writer --continue
-claude-code --rp project-manager --finalize
+# 각 RP 작업 완료 시
+git add .
+git commit -m "[PM] PRD 작성 완료"
+git tag "rp-pm-complete"
 ```
 
-### 5. 품질 기준
-
-#### 코드 품질
-- 테스트 커버리지: 80% 이상
-- 린트 오류: 0개
-- 타입 안정성: 100%
-- 성능: 응답시간 200ms 이하
-
-#### 문서 품질
-- 모든 API 엔드포인트 문서화
-- 사용자 가이드 완성도 100%
-- 코드 주석 coverage 70% 이상
-
-### 6. 모니터링 및 피드백
-
-#### 진행 상황 추적
-```yaml
-status:
-  product-manager: ✓ completed
-  ux-ui-designer: ⚡ in-progress
-  frontend-developer: ⏳ waiting
-  backend-developer: ⏳ waiting
-  devops-engineer: ⏳ waiting
-  qa-engineer: ⏳ waiting
-  technical-writer: ⏳ waiting
-  project-manager: ⚡ monitoring
-```
-
-#### 피드백 루프
-1. 각 단계 완료 시 자동 검증
-2. 이슈 발생 시 해당 RP로 롤백
-3. 전체 완료 후 통합 테스트
-4. 사용자 피드백 수집 및 반영
-
-## 사용 방법
-
-### 1. 단일 RP 실행
+#### C. 실제 실행 예제
 ```bash
-claude-code --rp [role-name] --task "[task description]"
+# 1. PM 역할로 시작
+claude
+> @.rp-contexts/product-manager.md
+> "중고서점 플랫폼 아이디어가 있어"
+
+# 2. Designer 역할로 전환
+> @.rp-contexts/ux-ui-designer.md
+> Read docs/requirements/PRD.md
+> mcp__TalkToFigma__create_frame...
+
+# 3. Developer 역할로 전환
+> @.rp-contexts/frontend-developer.md
+> 이전 디자인을 기반으로 Next.js 앱 생성
 ```
 
-### 2. 전체 체인 실행
-```bash
-claude-code --rp-chain --idea "[your idea]"
-```
+### 5. 한계와 해결책
 
-### 3. 특정 단계부터 재개
-```bash
-claude-code --rp-chain --resume-from [role-name]
-```
+#### 한계점
+1. 완전 자동화 불가 - 사용자 개입 필요
+2. 컨텍스트 크기 제한
+3. MCP 도구 간 직접 통신 불가
 
-## 주의사항
-- 각 RP는 독립적으로 작동하지만 의존성을 고려해야 함
-- 산출물은 다음 RP가 이해할 수 있는 형식으로 작성
-- 에러 발생 시 즉시 Project Manager에게 보고
-- 모든 코드는 즉시 커밋되어야 함
+#### 해결책
+1. 체크포인트 시스템으로 단계별 저장
+2. 중요 정보만 Context7에 저장
+3. 파일 시스템과 Git을 통한 데이터 공유
+
+## 결론
+이 방식은 Claude Code의 실제 기능을 활용하여 RP 체인을 구현하는 현실적인 방법입니다.
+완전 자동화는 아니지만, 구조화된 프로세스로 효율적인 개발이 가능합니다.
