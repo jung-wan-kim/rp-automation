@@ -8,14 +8,76 @@ AI 에이전트가 특정 역할을 수행할 수 있도록 설계된 프롬프�
 
 ## 🎭 제공되는 역할
 
+- **Product Manager** - 제품 전략 및 로드맵 관리자
+- **UX/UI Designer** - 사용자 경험 및 인터페이스 디자이너
 - **Backend Developer** - 서버 개발 및 API 설계 전문가
 - **Frontend Developer** - 사용자 인터페이스 개발 전문가
 - **DevOps Engineer** - 인프라 자동화 및 배포 전문가
-- **Product Manager** - 제품 전략 및 로드맵 관리자
-- **Project Manager** - 프로젝트 일정 및 리소스 관리자
 - **QA Engineer** - 품질 보증 및 테스트 전문가
 - **Technical Writer** - 기술 문서 작성 전문가
-- **UX/UI Designer** - 사용자 경험 및 인터페이스 디자이너
+- **Project Manager** - 프로젝트 일정 및 리소스 관리자
+
+## 🔄 역할 관계 및 워크플로우
+
+### 역할 관계도
+```mermaid
+graph TB
+    PM[Product Manager] --> |요구사항 전달| UX[UX/UI Designer]
+    UX --> |디자인 전달| FE[Frontend Developer]
+    PM --> |기술 요구사항| BE[Backend Developer]
+    BE --> |API 명세| FE
+    FE --> |빌드 설정| DO[DevOps Engineer]
+    BE --> |배포 요구사항| DO
+    DO --> |테스트 환경| QA[QA Engineer]
+    QA --> |테스트 결과| PM
+    QA --> |버그 리포트| BE
+    QA --> |버그 리포트| FE
+    BE --> |API 문서| TW[Technical Writer]
+    FE --> |사용법| TW
+    TW --> |문서화| ALL[모든 역할]
+    PjM[Project Manager] -.->|관리/조율| ALL
+    
+    style PM fill:#f9f,stroke:#333,stroke-width:2px
+    style PjM fill:#bbf,stroke:#333,stroke-width:2px
+```
+
+### 역할 체인 (순차적 작업 흐름)
+```mermaid
+graph LR
+    subgraph "Phase 1: 기획"
+        PM[Product Manager] --> UX[UX/UI Designer]
+    end
+    
+    subgraph "Phase 2: 개발"
+        UX --> FE[Frontend Dev]
+        UX --> BE[Backend Dev]
+    end
+    
+    subgraph "Phase 3: 배포"
+        FE --> DO[DevOps]
+        BE --> DO
+    end
+    
+    subgraph "Phase 4: 검증"
+        DO --> QA[QA Engineer]
+    end
+    
+    subgraph "Phase 5: 문서화"
+        QA --> TW[Tech Writer]
+    end
+```
+
+### 역할별 협업 매트릭스
+| 역할 | Product Manager | UX/UI Designer | Frontend Dev | Backend Dev | DevOps | QA Engineer | Tech Writer | Project Manager |
+|------|----------------|----------------|--------------|-------------|---------|-------------|-------------|----------------|
+| **Product Manager** | - | 요구사항 전달 | 기능 설명 | 기술 요구사항 | 배포 전략 | 품질 기준 | 문서 요구사항 | 일정 협의 |
+| **UX/UI Designer** | 피드백 수신 | - | 디자인 전달 | API 요구사항 | - | 사용성 테스트 | UI 가이드 | 일정 보고 |
+| **Frontend Dev** | 기능 확인 | 디자인 구현 | - | API 통합 | 빌드 설정 | 버그 수정 | 사용법 제공 | 진행 상황 |
+| **Backend Dev** | 기능 확인 | - | API 제공 | - | 인프라 요구 | 버그 수정 | API 문서 | 진행 상황 |
+| **DevOps** | - | - | 배포 지원 | 배포 지원 | - | 환경 제공 | 인프라 문서 | 리소스 요청 |
+| **QA Engineer** | 테스트 결과 | UI 버그 | 프론트 버그 | 백엔드 버그 | 환경 이슈 | - | 테스트 문서 | 품질 보고 |
+| **Tech Writer** | 문서 검토 | 디자인 문서 | 가이드 작성 | API 문서 | 배포 문서 | 테스트 문서 | - | 문서 일정 |
+| **Project Manager** | 전체 조율 | 일정 관리 | 일정 관리 | 일정 관리 | 리소스 관리 | 일정 관리 | 일정 관리 | - |
 
 ## 🚀 다른 프로젝트에 적용하는 방법
 
@@ -163,16 +225,44 @@ claude-code "Product Manager로 시작해서 모든 RP를 순차적으로 활용
             새로운 기능에 대한 개발 프로세스를 진행해줘"
 ```
 
-### 역할 체인
-순차적으로 여러 역할을 거쳐 작업 진행:
+### 실제 활용 시나리오
 
+#### 시나리오 1: 새로운 기능 개발
+```bash
+# 1단계: Product Manager로 요구사항 정의
+claude-code ".rp/product-manager.md를 참고해서 
+            사용자 프로필 기능의 PRD를 작성해줘"
+
+# 2단계: UX/UI Designer로 디자인
+claude-code "이전에 작성한 PRD를 바탕으로 
+            .rp/ux-ui-designer.md를 참고해서 UI를 디자인해줘"
+
+# 3단계: 개발팀 동시 작업
+claude-code ".rp/backend-developer.md와 .rp/frontend-developer.md를 
+            동시에 활용해서 API와 UI를 개발해줘"
+
+# 4단계: DevOps로 배포 준비
+claude-code ".rp/devops-engineer.md를 참고해서 
+            개발된 기능을 배포 준비해줘"
+
+# 5단계: QA로 테스트
+claude-code ".rp/qa-engineer.md를 참고해서 
+            전체 기능을 테스트해줘"
 ```
-1. Product Manager: 요구사항 정의
-2. UX/UI Designer: 디자인 작성
-3. Frontend Developer: UI 구현
-4. Backend Developer: API 개발
-5. QA Engineer: 테스트 수행
-6. Technical Writer: 문서화
+
+#### 시나리오 2: 버그 수정 프로세스
+```bash
+# QA가 버그 발견 → 개발자가 수정 → DevOps가 핫픽스 배포
+claude-code "QA Engineer 역할로 버그를 분석하고,
+            Backend/Frontend Developer로 수정한 뒤,
+            DevOps Engineer로 핫픽스를 배포해줘"
+```
+
+#### 시나리오 3: 전체 프로젝트 시뮬레이션
+```bash
+# 모든 역할을 순차적으로 활용한 풀 사이클 개발
+claude-code ".rp/PROJECT_CONTEXT.md와 함께 모든 RP를 활용해서
+            '온라인 쇼핑몰' 프로젝트를 처음부터 끝까지 진행해줘"
 ```
 
 ## 📝 라이선스
