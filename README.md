@@ -37,8 +37,8 @@ graph TB
     TW --> |문서화| ALL[모든 역할]
     PjM[Project Manager] -.->|관리/조율| ALL
     
-    style PM fill:#f9f,stroke:#333,stroke-width:2px
-    style PjM fill:#bbf,stroke:#333,stroke-width:2px
+    style PM fill:#f9f,stroke:#333,stroke-width:2px,color:#000
+    style PjM fill:#bbf,stroke:#333,stroke-width:2px,color:#000
 ```
 
 ### 역할 체인 (순차적 작업 흐름)
