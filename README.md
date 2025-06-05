@@ -127,10 +127,13 @@ rp-automation/
 
 ## 💡 활용 예시
 
-### 1. ChatGPT Custom Instructions
-```
-1. ChatGPT 설정 → Custom Instructions
-2. "How would you like ChatGPT to respond?" 섹션에 원하는 역할 프롬프트 붙여넣기
+### 1. Claude Code에서 사용하기
+```bash
+# 특정 RP로 작업 시작
+claude-code ".rp/backend-developer.md를 참고해서 API를 설계해줘"
+
+# 여러 RP 협업
+claude-code ".rp/ 디렉토리의 모든 RP를 활용해서 프로젝트를 진행해줘"
 ```
 
 ### 2. Claude Projects
@@ -140,28 +143,13 @@ rp-automation/
 3. 대화 시작 시 원하는 역할 지정
 ```
 
-### 3. API 통합
-```javascript
-// JavaScript/Node.js 예시
-const fs = require('fs');
-const OpenAI = require('openai');
+### 3. 프로젝트별 커스텀 프롬프트
+```bash
+# 프로젝트 특화 프롬프트 추가
+echo "프로젝트별 추가 지시사항" > .rp/PROJECT_CONTEXT.md
 
-const systemPrompt = fs.readFileSync('./SYSTEM.md', 'utf8');
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-async function askExpert(role, question) {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: `${role}로서 답변해주세요: ${question}` }
-    ]
-  });
-  return response.choices[0].message.content;
-}
-
-// 사용 예시
-const answer = await askExpert("백엔드 개발자", "마이크로서비스 아키텍처의 장단점은?");
+# Claude Code에서 프로젝트 컨텍스트와 함께 사용
+claude-code ".rp/PROJECT_CONTEXT.md와 .rp/backend-developer.md를 참고해서 작업해줘"
 ```
 
 ## 🔧 고급 활용
@@ -169,13 +157,10 @@ const answer = await askExpert("백엔드 개발자", "마이크로서비스 아
 ### 팀 시뮬레이션
 여러 역할을 동시에 활용하여 가상의 개발팀 구성:
 
-```python
-roles = ["product-manager", "backend-developer", "frontend-developer", "qa-engineer"]
-
-for role in roles:
-    prompt = load_prompt(f"{role}.md")
-    response = ai_chat(prompt, "새로운 기능 X에 대한 의견을 주세요")
-    print(f"{role}: {response}")
+```bash
+# Claude Code에서 팀 시뮬레이션
+claude-code "Product Manager로 시작해서 모든 RP를 순차적으로 활용해
+            새로운 기능에 대한 개발 프로세스를 진행해줘"
 ```
 
 ### 역할 체인
