@@ -1,0 +1,33 @@
+{
+  "name": "tradingview-webhook-vercel",
+  "version": "1.0.0",
+  "description": "TradingView webhook handler for Vercel Edge Functions with TypeScript",
+  "main": "api/webhook.ts",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "tsc --noEmit",
+    "deploy": "vercel --prod",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "@vercel/node": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.5",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.3",
+    "vercel": "^32.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
