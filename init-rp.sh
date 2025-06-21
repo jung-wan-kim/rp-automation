@@ -48,22 +48,30 @@ show_progress() {
     local bar_length=40
     local filled_length=$((percent * bar_length / 100))
     
-    printf "\r["
-    printf "%${filled_length}s" | tr ' ' '='
-    printf "%$((bar_length - filled_length))s" | tr ' ' '-'
-    printf "] %d%%" $percent
+    # 터미널이 아닌 경우 (파이프 실행) 진행 표시 생략
+    if [ -t 1 ]; then
+        printf "\r["
+        printf "%${filled_length}s" | tr ' ' '='
+        printf "%$((bar_length - filled_length))s" | tr ' ' '-'
+        printf "] %d%%" $percent
+    fi
 }
 
 # .rp 디렉토리 확인 및 생성
 create_rp_directory() {
     if [ -d ".rp" ]; then
         echo -e "${YELLOW}⚠️  .rp 디렉토리가 이미 존재합니다.${NC}"
-        echo -e "${RED}기존 파일들이 덮어쓰기 됩니다. 계속하시겠습니까? (y/N)${NC}"
-        read -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo -e "${RED}초기화를 취소합니다.${NC}"
-            exit 1
+        # 파이프로 실행 시에는 자동으로 진행
+        if [ -t 0 ]; then
+            echo -e "${RED}기존 파일들이 덮어쓰기 됩니다. 계속하시겠습니까? (y/N)${NC}"
+            read -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                echo -e "${RED}초기화를 취소합니다.${NC}"
+                exit 1
+            fi
+        else
+            echo -e "${YELLOW}기존 파일을 덮어쓰기합니다...${NC}"
         fi
     fi
     
@@ -91,7 +99,9 @@ download_rp_files() {
         fi
         
         show_progress $current $total
-        echo -e "\n"
+        if [ -t 1 ]; then
+            echo -e "\n"
+        fi
     done
     
     if [ ${#failed_files[@]} -gt 0 ]; then
