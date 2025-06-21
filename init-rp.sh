@@ -88,7 +88,7 @@ download_rp_files() {
     local failed_files=()
     
     for file in "${RP_FILES[@]}"; do
-        ((current++))
+        current=$((current + 1))
         echo -e "${CYAN}[$current/$total]${NC} $file 다운로드 중..."
         
         if curl -fsSL "${GITHUB_RAW_URL}/${file}" -o ".rp/${file}"; then
