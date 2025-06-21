@@ -83,10 +83,10 @@ download_rp_files() {
         ((current++))
         echo -e "${CYAN}[$current/$total]${NC} $file 다운로드 중..."
         
-        if curl -fsSL "${GITHUB_RAW_URL}/${file}" -o ".rp/${file}" 2>/dev/null; then
+        if curl -fsSL "${GITHUB_RAW_URL}/${file}" -o ".rp/${file}"; then
             echo -e "${GREEN}✓${NC} $file 다운로드 완료"
         else
-            echo -e "${RED}✗${NC} $file 다운로드 실패"
+            echo -e "${RED}✗${NC} $file 다운로드 실패 (에러: $?)"
             failed_files+=("$file")
         fi
         
