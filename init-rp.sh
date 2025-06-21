@@ -3,7 +3,7 @@
 # RP 자동화 시스템 초기화 스크립트 (자동화 버전)
 # 사용법: curl -fsSL https://raw.githubusercontent.com/jung-wan-kim/rp-automation/master/init-rp.sh | bash
 
-set -e
+set -euo pipefail
 
 # 색상 정의
 RED='\033[0;31m'
@@ -91,15 +91,22 @@ download_rp_files() {
         current=$((current + 1))
         echo -e "${CYAN}[$current/$total]${NC} $file 다운로드 중..."
         
-        if curl -fsSL "${GITHUB_RAW_URL}/${file}" -o ".rp/${file}"; then
+        # 다운로드 URL 디버깅
+        local url="${GITHUB_RAW_URL}/${file}"
+        local target=".rp/${file}"
+        
+        # curl 명령 실행
+        if curl -fsSL "$url" -o "$target" 2>&1; then
             echo -e "${GREEN}✓${NC} $file 다운로드 완료"
         else
-            echo -e "${RED}✗${NC} $file 다운로드 실패 (에러: $?)"
+            local error_code=$?
+            echo -e "${RED}✗${NC} $file 다운로드 실패 (에러: $error_code)"
             failed_files+=("$file")
         fi
         
-        show_progress $current $total
+        # 진행 표시는 터미널에서만
         if [ -t 1 ]; then
+            show_progress $current $total
             echo -e "\n"
         fi
     done
@@ -110,6 +117,8 @@ download_rp_files() {
             echo -e "  - $file"
         done
     fi
+    
+    echo -e "\n${GREEN}다운로드 완료!${NC}"
 }
 
 # PROJECT_CONTEXT.md 생성
